@@ -1,0 +1,60 @@
+.observation-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background-color: #ff9800;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  animation: pulse 2s infinite;
+}
+
+.observation-banner-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.observation-banner i {
+  font-size: 18px;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    background-color: #ff9800;
+  }
+  50% {
+    background-color: #ff5722;
+  }
+}
+
+/* Disable all interactions when in observation mode */
+body.observation-mode device-screen,
+body.observation-mode .stf-device-control {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+}
+
+body.observation-mode device-screen::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 152, 0, 0.1);
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* Keep observation banner interactive */
+body.observation-mode .observation-banner {
+  pointer-events: auto !important;
+}
+

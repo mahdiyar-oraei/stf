@@ -60,29 +60,46 @@ module.exports =
 
     $scope.device = null
     $scope.control = null
+    $scope.observeMode = $location.search().observe === 'true'
 
     // TODO: Move this out to Ctrl.resolve
     function getDevice(serial) {
-      DeviceService.get(serial, $scope)
-        .then(function(device) {
-          return GroupService.invite(device)
-        })
-        .then(function(device) {
-          $scope.device = device
-          $scope.control = ControlService.create(device, device.channel)
-
-          // TODO: Change title, flickers too much on Chrome
-          // $rootScope.pageTitle = device.name
-
-          SettingsService.set('lastUsedDevice', serial)
-
-          return device
-        })
-        .catch(function() {
-          $timeout(function() {
-            $location.path('/')
+      if ($scope.observeMode) {
+        // In observation mode, just get the device without inviting
+        DeviceService.get(serial, $scope)
+          .then(function(device) {
+            $scope.device = device
+            // Don't create control in observe mode
+            $scope.control = null
+            return device
           })
-        })
+          .catch(function() {
+            $timeout(function() {
+              $location.path('/')
+            })
+          })
+      } else {
+        DeviceService.get(serial, $scope)
+          .then(function(device) {
+            return GroupService.invite(device)
+          })
+          .then(function(device) {
+            $scope.device = device
+            $scope.control = ControlService.create(device, device.channel)
+
+            // TODO: Change title, flickers too much on Chrome
+            // $rootScope.pageTitle = device.name
+
+            SettingsService.set('lastUsedDevice', serial)
+
+            return device
+          })
+          .catch(function() {
+            $timeout(function() {
+              $location.path('/')
+            })
+          })
+      }
     }
 
     getDevice($routeParams.serial)

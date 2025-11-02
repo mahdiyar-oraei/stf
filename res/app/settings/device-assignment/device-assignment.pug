@@ -1,0 +1,59 @@
+.stf-device-assignment
+  .row
+    .col-md-6
+      h3(translate) Devices
+      .device-assignment-search
+        input.form-control(type='text', ng-model='deviceSearch', placeholder='{{ "Search devices..." | translate }}')
+      .device-assignment-list
+        table.table.table-bordered.table-hover
+          thead
+            tr
+              th(translate) Serial
+              th(translate) Model
+              th(translate) Assigned To
+              th(translate) Actions
+          tbody
+            tr(ng-repeat='device in devices | filter:deviceSearch track by device.serial')
+              td {{ device.serial }}
+              td {{ device.model || device.name }}
+              td
+                span(ng-if='device.assignedUser') {{ device.assignedUser }}
+                span.text-muted(ng-if='!device.assignedUser', translate) Unassigned
+              td
+                button.btn.btn-xs.btn-danger(ng-if='device.assignedUser', ng-click='unassignDevice(device.serial)', translate) Unassign
+                button.btn.btn-xs.btn-success(ng-if='!device.assignedUser', ng-click='showAssignModal(device)', translate) Assign
+
+    .col-md-6
+      h3(translate) Users
+      .user-search
+        input.form-control(type='text', ng-model='userSearch', placeholder='{{ "Search users..." | translate }}')
+      .user-list
+        table.table.table-bordered.table-hover
+          thead
+            tr
+              th(translate) Email
+              th(translate) Name
+              th(translate) Assigned Devices
+          tbody
+            tr(ng-repeat='user in users | filter:userSearch track by user.email')
+              td {{ user.email }}
+              td {{ user.name }}
+              td
+                span.badge {{ getUserDeviceCount(user.email) }}
+
+  // Assignment Modal
+  .modal.fade(id='assignmentModal', tabindex='-1', role='dialog')
+    .modal-dialog
+      .modal-content
+        .modal-header
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+          h4.modal-title(translate) Assign Device
+        .modal-body
+          p(translate) Assign device {{ selectedDevice ? selectedDevice.serial : '' }} to:
+          select.form-control(ng-model='selectedUser', ng-options='user.email as (user.name + " (" + user.email + ")") for user in users')
+            option(value='', translate) -- Select User --
+        .modal-footer
+          button.btn.btn-default(type='button', data-dismiss='modal', translate) Cancel
+          button.btn.btn-primary(type='button', ng-click='confirmAssignment()', ng-disabled='!selectedUser', translate) Assign
+

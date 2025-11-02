@@ -77,6 +77,13 @@ module.exports = function DeviceColumnService($filter, gettext, SettingsService,
         return $filter('translate')(device.group.originName)
       }
     })
+  , assignedUser: TextCell({
+      title: gettext('Assigned To')
+    , admin: true
+    , value: function(device) {
+        return device.assignedUser || ''
+      }
+    })
   , model: DeviceModelCell({
       title: gettext('Model')
     , value: function(device) {

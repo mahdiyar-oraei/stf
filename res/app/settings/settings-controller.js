@@ -36,6 +36,13 @@ module.exports = function SettingsCtrl($scope, gettext, AppState) {
     )
     $scope.settingTabs.push(
       {
+        title: gettext('Device Assignment'),
+        icon: 'fa-link fa-fw',
+        templateUrl: 'settings/device-assignment/device-assignment.pug'
+      }
+    )
+    $scope.settingTabs.push(
+      {
         title: gettext('Users'),
         icon: 'fa-user fa-fw',
         templateUrl: 'settings/users/users.pug'
