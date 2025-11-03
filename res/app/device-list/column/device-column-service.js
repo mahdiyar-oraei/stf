@@ -95,7 +95,7 @@ module.exports = function DeviceColumnService($filter, gettext, SettingsService,
     , value: function(device) {
         return device.name || device.model || device.serial
       }
-    }, AppState.user.email)
+    }, AppState.user.email, AppState.user.privilege)
   , operator: TextCell({
       title: gettext('Carrier')
     , value: function(device) {
@@ -618,7 +618,7 @@ function DeviceModelCell(options) {
   })
 }
 
-function DeviceNameCell(options, ownerEmail) {
+function DeviceNameCell(options, ownerEmail, userPrivilege) {
   return _.defaults(options, {
     title: options.title
   , defaultOrder: 'asc'
@@ -640,6 +640,11 @@ function DeviceNameCell(options, ownerEmail) {
       else if (device.usable && !device.using) {
         a.className = 'device-product-name-usable'
         a.href = '#!/control/' + device.serial
+      }
+      else if (userPrivilege === 'admin' && device.using && device.owner && device.owner.email !== ownerEmail) {
+        // Admin observing device in use by another user
+        a.className = 'device-product-name-observing'
+        a.href = '#!/control/' + device.serial + '?observe=true'
       }
       else {
         a.className = 'device-product-name-unusable'

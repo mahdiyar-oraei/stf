@@ -5,7 +5,7 @@
 module.exports =
   function ControlPanesController($scope, $http, gettext, $routeParams,
     $timeout, $location, DeviceService, GroupService, ControlService,
-    StorageService, FatalMessageService, SettingsService) {
+    StorageService, FatalMessageService, SettingsService, AppState) {
 
     var sharedTabs = [
       {
@@ -81,16 +81,31 @@ module.exports =
       } else {
         DeviceService.get(serial, $scope)
           .then(function(device) {
+            // Check if admin is trying to access a device in use by another user
+            if (AppState.user.privilege === 'admin' && 
+                device.owner && 
+                device.owner.email !== AppState.user.email) {
+              // Automatically enable observe mode for admins
+              $scope.observeMode = true
+              $scope.device = device
+              $scope.control = null
+              // Update URL to reflect observe mode (without reload)
+              $location.search('observe', 'true').replace()
+              return device
+            }
+            
             return GroupService.invite(device)
           })
           .then(function(device) {
-            $scope.device = device
-            $scope.control = ControlService.create(device, device.channel)
+            if (!$scope.observeMode) {
+              $scope.device = device
+              $scope.control = ControlService.create(device, device.channel)
 
-            // TODO: Change title, flickers too much on Chrome
-            // $rootScope.pageTitle = device.name
+              // TODO: Change title, flickers too much on Chrome
+              // $rootScope.pageTitle = device.name
 
-            SettingsService.set('lastUsedDevice', serial)
+              SettingsService.set('lastUsedDevice', serial)
+            }
 
             return device
           })

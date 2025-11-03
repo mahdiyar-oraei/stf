@@ -8,6 +8,7 @@ module.exports = function DeviceListIconsDirective(
 , StandaloneService
 , LogcatService
 , $rootScope
+, AppState
 ) {
   function DeviceItem() {
     return {
@@ -90,7 +91,13 @@ module.exports = function DeviceListIconsDirective(
           li.classList.remove('device-is-busy')
         }
         else if (device.using && device.usable) {
-          a.href = '#!/control/' + device.serial
+          // If admin is accessing a device owned by someone else, add observe parameter
+          if (AppState.user.privilege === 'admin' && device.owner && device.owner.email !== AppState.user.email) {
+            a.href = '#!/control/' + device.serial + '?observe=true'
+          } else {
+            a.href = '#!/control/' + device.serial
+          }
+          li.classList.remove('device-is-busy')
         }
         else {
           a.removeAttribute('href')
