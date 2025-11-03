@@ -37,10 +37,13 @@ module.exports = function DeviceAssignmentCtrl(
 
   // Load all users
   function loadUsers() {
-    UsersService.getUsers().then(function(response) {
+    UsersService.getUsers('email,name').then(function(response) {
       if (response.data.success) {
         $scope.users = response.data.users
       }
+    })
+    .catch(function(error) {
+      CommonService.notify('Failed to load users: ' + (error.data ? error.data.description : error.message), 'danger')
     })
   }
 
@@ -53,7 +56,20 @@ module.exports = function DeviceAssignmentCtrl(
   $scope.showAssignModal = function(device) {
     $scope.selectedDevice = device
     $scope.selectedUser = ''
-    angular.element('#assignmentModal').modal('show')
+    // Use jQuery if available (Bootstrap requires jQuery for modals)
+    var $ = window.jQuery || window.$
+    var modalElement = document.getElementById('assignmentModal')
+    if (modalElement && $) {
+      $(modalElement).modal('show')
+    } else if (modalElement) {
+      // Fallback: manually show modal if jQuery not available
+      modalElement.style.display = 'block'
+      modalElement.classList.add('show')
+      var backdrop = document.createElement('div')
+      backdrop.className = 'modal-backdrop fade show'
+      backdrop.id = 'modalBackdrop'
+      document.body.appendChild(backdrop)
+    }
   }
 
   // Confirm assignment
@@ -72,7 +88,20 @@ module.exports = function DeviceAssignmentCtrl(
           }
           $scope.deviceAssignments[$scope.selectedUser].push($scope.selectedDevice.serial)
           
-          angular.element('#assignmentModal').modal('hide')
+          // Use jQuery if available (Bootstrap requires jQuery for modals)
+          var $ = window.jQuery || window.$
+          var modalElement = document.getElementById('assignmentModal')
+          if (modalElement && $) {
+            $(modalElement).modal('hide')
+          } else if (modalElement) {
+            // Fallback: manually hide modal if jQuery not available
+            modalElement.style.display = 'none'
+            modalElement.classList.remove('show')
+            var backdrop = document.getElementById('modalBackdrop')
+            if (backdrop) {
+              backdrop.remove()
+            }
+          }
           CommonService.notify('Device assigned successfully', 'success')
         }
       })
