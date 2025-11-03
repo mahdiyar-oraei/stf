@@ -2077,6 +2077,77 @@ paths:
             $ref: "#/definitions/UnexpectedErrorResponse"
       security:
         - accessTokenAuth: []
+  /devices/{serial}/adminOwner:
+    x-swagger-router-controller: devices
+    put:
+      summary: Set device admin owner
+      description: Sets a specific admin as the owner of a device, making it visible only to that admin (admin only)
+      operationId: setDeviceAdminOwner
+      tags:
+        - admin
+      parameters:
+        - name: serial
+          in: path
+          description: Device identifier (serial)
+          required: true
+          type: string
+        - name: email
+          in: body
+          description: Admin email to own this device (must be an admin user)
+          required: true
+          schema:
+            type: object
+            required:
+              - email
+            properties:
+              email:
+                type: string
+                description: Email of the admin user to own this device
+      responses:
+        "200":
+          description: Device admin owner set successfully
+          schema:
+            $ref: "#/definitions/Response"
+        default:
+          description: >
+            Unexpected Error:
+              * 400: Bad Request => invalid email or user is not admin
+              * 401: Unauthorized => bad credentials
+              * 403: Forbidden => not admin
+              * 404: Not Found => device or user not found
+              * 500: Internal Server Error
+          schema:
+            $ref: "#/definitions/UnexpectedErrorResponse"
+      security:
+        - accessTokenAuth: []
+    delete:
+      summary: Remove device admin owner
+      description: Removes admin owner from device, making it visible to all admins (admin only)
+      operationId: unsetDeviceAdminOwner
+      tags:
+        - admin
+      parameters:
+        - name: serial
+          in: path
+          description: Device identifier (serial)
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Device admin owner removed successfully
+          schema:
+            $ref: "#/definitions/Response"
+        default:
+          description: >
+            Unexpected Error:
+              * 401: Unauthorized => bad credentials
+              * 403: Forbidden => not admin
+              * 404: Not Found => device not found
+              * 500: Internal Server Error
+          schema:
+            $ref: "#/definitions/UnexpectedErrorResponse"
+      security:
+        - accessTokenAuth: []
   /devices/assigned/{email}:
     x-swagger-router-controller: devices
     get:
