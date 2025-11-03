@@ -41,19 +41,19 @@
               td
                 span.badge {{ getUserDeviceCount(user.email) }}
 
-  // Assignment Modal
-  .modal.fade(id='assignmentModal', tabindex='-1', role='dialog')
-    .modal-dialog
-      .modal-content
-        .modal-header
-          button.close(type='button', data-dismiss='modal', aria-label='Close')
-            span(aria-hidden='true') &times;
-          h4.modal-title(translate) Assign Device
-        .modal-body
-          p(translate) Assign device {{ selectedDevice ? selectedDevice.serial : '' }} to:
-          select.form-control(ng-model='selectedUser', ng-options='user.email as (user.name + " (" + user.email + ")") for user in users')
-            option(value='', translate) -- Select User --
-        .modal-footer
-          button.btn.btn-default(type='button', data-dismiss='modal', translate) Cancel
-          button.btn.btn-primary(type='button', ng-click='confirmAssignment()', ng-disabled='!selectedUser', translate) Assign
+// Assignment Modal (moved outside widget-container for proper Bootstrap modal positioning)
+.modal.fade(id='assignmentModal', tabindex='-1', role='dialog', aria-labelledby='assignmentModalLabel', aria-hidden='true')
+  .modal-dialog(role='document')
+    .modal-content
+      .modal-header
+        button.close(type='button', data-dismiss='modal', aria-label='Close')
+          span(aria-hidden='true') &times;
+        h4.modal-title#assignmentModalLabel(translate) Assign Device
+      .modal-body
+        p(translate) Assign device {{ selectedDevice ? selectedDevice.serial : '' }} to:
+        select.form-control(ng-model='selectedUser', ng-options='user.email as (user.name + " (" + user.email + ")") for user in users')
+          option(value='', translate) -- Select User --
+      .modal-footer
+        button.btn.btn-default(type='button', data-dismiss='modal', translate) Cancel
+        button.btn.btn-primary(type='button', ng-click='confirmAssignment()', ng-disabled='!selectedUser', translate) Assign
 

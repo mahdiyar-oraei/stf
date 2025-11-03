@@ -56,20 +56,40 @@ module.exports = function DeviceAssignmentCtrl(
   $scope.showAssignModal = function(device) {
     $scope.selectedDevice = device
     $scope.selectedUser = ''
-    // Use jQuery if available (Bootstrap requires jQuery for modals)
-    var $ = window.jQuery || window.$
-    var modalElement = document.getElementById('assignmentModal')
-    if (modalElement && $) {
-      $(modalElement).modal('show')
-    } else if (modalElement) {
-      // Fallback: manually show modal if jQuery not available
-      modalElement.style.display = 'block'
-      modalElement.classList.add('show')
-      var backdrop = document.createElement('div')
-      backdrop.className = 'modal-backdrop fade show'
-      backdrop.id = 'modalBackdrop'
-      document.body.appendChild(backdrop)
-    }
+    
+    // Use setTimeout to ensure DOM is updated after Angular digest
+    setTimeout(function() {
+      // Use jQuery if available (Bootstrap requires jQuery for modals)
+      var $ = window.jQuery || window.$
+      var modalElement = document.getElementById('assignmentModal')
+      if (modalElement && $) {
+        // Ensure modal is appended to body for proper positioning
+        if (modalElement.parentNode !== document.body) {
+          document.body.appendChild(modalElement)
+        }
+        $(modalElement).modal({
+          backdrop: true,
+          keyboard: true,
+          show: true
+        })
+      } else if (modalElement) {
+        // Fallback: manually show modal if jQuery not available
+        // Move to body if not already there
+        if (modalElement.parentNode !== document.body) {
+          document.body.appendChild(modalElement)
+        }
+        modalElement.style.display = 'block'
+        modalElement.classList.add('show')
+        modalElement.style.zIndex = '1050'
+        document.body.classList.add('modal-open')
+        
+        var backdrop = document.createElement('div')
+        backdrop.className = 'modal-backdrop fade show'
+        backdrop.id = 'modalBackdrop'
+        backdrop.style.zIndex = '1040'
+        document.body.appendChild(backdrop)
+      }
+    }, 0)
   }
 
   // Confirm assignment
@@ -97,6 +117,7 @@ module.exports = function DeviceAssignmentCtrl(
             // Fallback: manually hide modal if jQuery not available
             modalElement.style.display = 'none'
             modalElement.classList.remove('show')
+            document.body.classList.remove('modal-open')
             var backdrop = document.getElementById('modalBackdrop')
             if (backdrop) {
               backdrop.remove()
