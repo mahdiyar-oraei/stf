@@ -16,7 +16,7 @@ module.exports = function DeviceAssignmentCtrl(
 
   // Load all devices
   function loadDevices() {
-    DevicesService.getDevices('').then(function(response) {
+    DevicesService.getDevices('origin', '').then(function(response) {
       if (response.data.success) {
         $scope.devices = response.data.devices
         // Build assignment map
@@ -29,6 +29,9 @@ module.exports = function DeviceAssignmentCtrl(
           }
         })
       }
+    })
+    .catch(function(error) {
+      CommonService.notify('Failed to load devices: ' + (error.data ? error.data.description : error.message), 'danger')
     })
   }
 
