@@ -830,7 +830,7 @@ paths:
     x-swagger-router-controller: users 
     post:
       summary: Creates a user
-      description: Creates a user in the database
+      description: Creates a user in the database and optionally in LDAP if password is provided
       operationId: createUser
       tags:
         - admin 
@@ -844,6 +844,11 @@ paths:
           in: query
           description: User name 
           required: true 
+          type: string
+        - name: password
+          in: query
+          description: Initial password for LDAP (optional, required if LDAP integration is enabled)
+          required: false
           type: string
       responses:
         "201":

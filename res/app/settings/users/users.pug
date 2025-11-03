@@ -42,6 +42,17 @@
                 label.user-list-label(translate) Email
                 input.form-control.input-sm(size='35' type='email' ng-model='tmpEnv.userEmail' required)
 
+              .form-group.user-creation
+                label.user-list-label Password (for LDAP)
+                input.form-control.input-sm(
+                  type='password'
+                  size='25'
+                  ng-model='tmpEnv.userPassword'
+                  placeholder='Optional: Leave empty to skip LDAP creation'
+                  uib-tooltip="{{'Optional password for creating user in LDAP directory' | translate}}"
+                  tooltip-placement='top'
+                  tooltip-popup-delay='500')
+
               .form-group.user-save
                 button.btn.btn-sm.btn-primary(
                   type='button'

@@ -72,8 +72,12 @@ module.exports = function UsersServiceFactory(
     )
   }
 
-  UsersService.createUser = function(name, email) {
-    return $http.post('/api/v1/users/' + email + '?name=' + name)
+  UsersService.createUser = function(name, email, password) {
+    var url = '/api/v1/users/' + email + '?name=' + encodeURIComponent(name)
+    if (password) {
+      url += '&password=' + encodeURIComponent(password)
+    }
+    return $http.post(url)
   }
 
   socket.on('user.settings.users.created', function(user) {

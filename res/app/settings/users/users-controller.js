@@ -180,7 +180,7 @@ module.exports = function UsersCtrl(
   }
 
   $scope.initTemporaryUser = function() {
-    $scope.tmpEnv.userName = $scope.tmpEnv.userEmail = ''
+    $scope.tmpEnv.userName = $scope.tmpEnv.userEmail = $scope.tmpEnv.userPassword = ''
     $scope.tmpEnv.userTooltip = 'Bad syntax'
   }
 
@@ -209,7 +209,7 @@ module.exports = function UsersCtrl(
   $scope.createUser = function() {
     CommonService.errorWrapper(
       UsersService.createUser
-    , [$scope.tmpEnv.userName, $scope.tmpEnv.userEmail]
+    , [$scope.tmpEnv.userName, $scope.tmpEnv.userEmail, $scope.tmpEnv.userPassword]
     )
   }
 
