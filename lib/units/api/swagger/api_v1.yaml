@@ -1427,6 +1427,36 @@ paths:
             $ref: "#/definitions/UnexpectedErrorResponse"
       security:
         - accessTokenAuth: []
+  /user/devices/{serial}/observe:
+    x-swagger-router-controller: user
+    get:
+      summary: Observe device in read-only mode
+      description: Allows admin to observe a busy device in read-only mode (admin only)
+      operationId: observeUserDevice
+      tags:
+        - admin
+      parameters:
+        - name: serial
+          in: path
+          description: Device identifier (serial)
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Device observation enabled
+          schema:
+            $ref: "#/definitions/DeviceResponse"
+        default:
+          description: >
+            Unexpected Error:
+              * 401: Unauthorized => bad credentials
+              * 403: Forbidden => cannot observe this device
+              * 404: Not Found => device not found
+              * 500: Internal Server Error
+          schema:
+            $ref: "#/definitions/UnexpectedErrorResponse"
+      security:
+        - accessTokenAuth: []
   /user/devices/{serial}:
     x-swagger-router-controller: user
     post:
@@ -1977,6 +2007,106 @@ paths:
             $ref: "#/definitions/UnexpectedErrorResponse"
       security:
         - accessTokenAuth: [ ]
+  /devices/{serial}/assign:
+    x-swagger-router-controller: devices
+    put:
+      summary: Assign device to user
+      description: Assigns a device to a specific user (admin only)
+      operationId: assignDeviceToUser
+      tags:
+        - admin
+      parameters:
+        - name: serial
+          in: path
+          description: Device identifier (serial)
+          required: true
+          type: string
+        - name: email
+          in: body
+          description: User email to assign device to
+          required: true
+          schema:
+            type: object
+            required:
+              - email
+            properties:
+              email:
+                type: string
+                description: Email of the user to assign the device to
+      responses:
+        "200":
+          description: Device assigned successfully
+          schema:
+            $ref: "#/definitions/Response"
+        default:
+          description: >
+            Unexpected Error:
+              * 401: Unauthorized => bad credentials
+              * 403: Forbidden => not admin
+              * 404: Not Found => device or user not found
+              * 500: Internal Server Error
+          schema:
+            $ref: "#/definitions/UnexpectedErrorResponse"
+      security:
+        - accessTokenAuth: []
+    delete:
+      summary: Unassign device from user
+      description: Removes device assignment (admin only)
+      operationId: unassignDeviceFromUser
+      tags:
+        - admin
+      parameters:
+        - name: serial
+          in: path
+          description: Device identifier (serial)
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Device unassigned successfully
+          schema:
+            $ref: "#/definitions/Response"
+        default:
+          description: >
+            Unexpected Error:
+              * 401: Unauthorized => bad credentials
+              * 403: Forbidden => not admin
+              * 404: Not Found => device not found
+              * 500: Internal Server Error
+          schema:
+            $ref: "#/definitions/UnexpectedErrorResponse"
+      security:
+        - accessTokenAuth: []
+  /devices/assigned/{email}:
+    x-swagger-router-controller: devices
+    get:
+      summary: Get devices assigned to user
+      description: Returns all devices assigned to a specific user (admin only)
+      operationId: getDevicesByAssignedUser
+      tags:
+        - admin
+      parameters:
+        - name: email
+          in: path
+          description: User email
+          required: true
+          type: string
+      responses:
+        "200":
+          description: List of assigned devices
+          schema:
+            $ref: "#/definitions/DeviceListResponse"
+        default:
+          description: >
+            Unexpected Error:
+              * 401: Unauthorized => bad credentials
+              * 403: Forbidden => not admin
+              * 404: Not Found => user not found
+              * 500: Internal Server Error
+          schema:
+            $ref: "#/definitions/UnexpectedErrorResponse"
+      security:
+        - accessTokenAuth: []
   /devices/groups/{id}:
     x-swagger-router-controller: devices
     put:
