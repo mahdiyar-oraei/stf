@@ -1,0 +1,22 @@
+.stf-device-assignment-modal.stf-modal
+  .modal-header
+    button.close(type='button', ng-click='cancel()', aria-label='Close')
+      span(aria-hidden='true') &times;
+    h4.modal-title
+      i.fa.fa-link
+      span.button-spacer
+      span(translate) Assign Device
+  .modal-body
+    p
+      span(translate) Assign device 
+      strong {{ device.serial }} 
+      span(translate)  to:
+    .form-group
+      select.form-control(ng-model='selectedUser', ng-options='user.email as (user.name + " (" + user.email + ")") for user in users')
+        option(value='', translate) -- Select User --
+  .modal-footer
+    button.btn.btn-default(type='button', ng-click='cancel()')
+      span(translate) Cancel
+    button.btn.btn-primary(type='button', ng-click='ok()', ng-disabled='!selectedUser')
+      span(translate) Assign
+

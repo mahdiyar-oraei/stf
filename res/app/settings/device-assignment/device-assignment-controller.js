@@ -1,6 +1,6 @@
 module.exports = function DeviceAssignmentCtrl(
   $scope,
-  $http,
+  $uibModal,
   DeviceAssignmentService,
   DevicesService,
   UsersService,
@@ -10,8 +10,6 @@ module.exports = function DeviceAssignmentCtrl(
   $scope.users = []
   $scope.deviceSearch = ''
   $scope.userSearch = ''
-  $scope.selectedDevice = null
-  $scope.selectedUser = ''
   $scope.deviceAssignments = {}
 
   // Load all devices
@@ -52,84 +50,57 @@ module.exports = function DeviceAssignmentCtrl(
     return ($scope.deviceAssignments[email] || []).length
   }
 
-  // Show assignment modal
+  // Show assignment modal using Angular UI Bootstrap
   $scope.showAssignModal = function(device) {
-    $scope.selectedDevice = device
-    $scope.selectedUser = ''
-    
-    // Use setTimeout to ensure DOM is updated after Angular digest
-    setTimeout(function() {
-      // Use jQuery if available (Bootstrap requires jQuery for modals)
-      var $ = window.jQuery || window.$
-      var modalElement = document.getElementById('assignmentModal')
-      if (modalElement && $) {
-        // Ensure modal is appended to body for proper positioning
-        if (modalElement.parentNode !== document.body) {
-          document.body.appendChild(modalElement)
-        }
-        $(modalElement).modal({
-          backdrop: true,
-          keyboard: true,
-          show: true
-        })
-      } else if (modalElement) {
-        // Fallback: manually show modal if jQuery not available
-        // Move to body if not already there
-        if (modalElement.parentNode !== document.body) {
-          document.body.appendChild(modalElement)
-        }
-        modalElement.style.display = 'block'
-        modalElement.classList.add('show')
-        modalElement.style.zIndex = '1050'
-        document.body.classList.add('modal-open')
+    var modalInstance = $uibModal.open({
+      template: require('./device-assignment-modal.pug'),
+      controller: function($scope, $uibModalInstance, device, users) {
+        $scope.device = device
+        $scope.users = users
+        $scope.selectedUser = ''
         
-        var backdrop = document.createElement('div')
-        backdrop.className = 'modal-backdrop fade show'
-        backdrop.id = 'modalBackdrop'
-        backdrop.style.zIndex = '1040'
-        document.body.appendChild(backdrop)
-      }
-    }, 0)
-  }
-
-  // Confirm assignment
-  $scope.confirmAssignment = function() {
-    if (!$scope.selectedUser || !$scope.selectedDevice) {
-      return
-    }
-
-    DeviceAssignmentService.assignDevice($scope.selectedDevice.serial, $scope.selectedUser)
-      .then(function(response) {
-        if (response.data.success) {
-          // Update local state
-          $scope.selectedDevice.assignedUser = $scope.selectedUser
-          if (!$scope.deviceAssignments[$scope.selectedUser]) {
-            $scope.deviceAssignments[$scope.selectedUser] = []
+        $scope.ok = function() {
+          if ($scope.selectedUser) {
+            $uibModalInstance.close($scope.selectedUser)
           }
-          $scope.deviceAssignments[$scope.selectedUser].push($scope.selectedDevice.serial)
-          
-          // Use jQuery if available (Bootstrap requires jQuery for modals)
-          var $ = window.jQuery || window.$
-          var modalElement = document.getElementById('assignmentModal')
-          if (modalElement && $) {
-            $(modalElement).modal('hide')
-          } else if (modalElement) {
-            // Fallback: manually hide modal if jQuery not available
-            modalElement.style.display = 'none'
-            modalElement.classList.remove('show')
-            document.body.classList.remove('modal-open')
-            var backdrop = document.getElementById('modalBackdrop')
-            if (backdrop) {
-              backdrop.remove()
-            }
-          }
-          CommonService.notify('Device assigned successfully', 'success')
         }
-      })
-      .catch(function(error) {
-        CommonService.notify('Failed to assign device: ' + (error.data ? error.data.description : error.message), 'danger')
-      })
+        
+        $scope.cancel = function() {
+          $uibModalInstance.dismiss('cancel')
+        }
+      },
+      resolve: {
+        device: function() {
+          return device
+        },
+        users: function() {
+          return $scope.users
+        }
+      }
+    })
+    
+    modalInstance.result.then(function(selectedUserEmail) {
+      // User clicked Assign
+      DeviceAssignmentService.assignDevice(device.serial, selectedUserEmail)
+        .then(function(response) {
+          if (response.data.success) {
+            // Update local state
+            device.assignedUser = selectedUserEmail
+            if (!$scope.deviceAssignments[selectedUserEmail]) {
+              $scope.deviceAssignments[selectedUserEmail] = []
+            }
+            $scope.deviceAssignments[selectedUserEmail].push(device.serial)
+            CommonService.notify('Device assigned successfully', 'success')
+          }
+        })
+        .catch(function(error) {
+          CommonService.notify('Failed to assign device: ' + (error.data ? error.data.description : error.message), 'danger')
+        })
+    }, function() {
+      // User cancelled
+    })
   }
+
 
   // Unassign device
   $scope.unassignDevice = function(serial) {
